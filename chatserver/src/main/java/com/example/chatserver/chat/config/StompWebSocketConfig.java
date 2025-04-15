@@ -11,6 +11,12 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class StompWebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    private final StompHandler stompHandler;
+
+    public StompWebSocketConfig(StompHandler stompHandler) {
+        this.stompHandler = stompHandler;
+    }
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/connect")
@@ -27,5 +33,11 @@ public class StompWebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 //        /topic/1형태로 메시지를 수신(subscribe)해야 함을 설정
         registry.enableSimpleBroker("/topic");
+    }
+
+//   웹소켓요청(connect, subscribe, disconnect)등의 요청시에는 http header등 http메시지를 넣어올수 있고, 이를 interceptor를 통해 가로채 토큰등을 검증할수 있음.
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(stompHandler);
     }
 }
